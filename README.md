@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lyria 3 Music Demo
 
-## Getting Started
+Google の Gemini API から Lyria 3 を呼び出して、テキストプロンプトから音楽を生成する簡単なデモです。Next.js の Route Handler で `@google/genai` を使い、返ってきた音声データをそのままブラウザで再生します。
 
-First, run the development server:
+## 調査結果
+
+- 必須 SDK は `@google/genai`。Gemini / Lyria 3 の現行 JavaScript SDK です。
+- API キーは `GEMINI_API_KEY` をサーバー側環境変数として設定します。互換で `GOOGLE_API_KEY` も使えます。
+- 短い試行には `lyria-3-clip-preview`、長尺の楽曲には `lyria-3-pro-preview` が適しています。
+- 音声再生に追加ライブラリは不要です。返却された base64 を `audio` 要素へ渡すだけでプレビューできます。
+
+## セットアップ
+
+`.env.local` を作成して API キーを設定します。
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+GEMINI_API_KEY=your_google_ai_studio_key
+# Optional
+GEMINI_MUSIC_MODEL=lyria-3-clip-preview
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+依存関係を入れて開発サーバーを起動します。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+ブラウザで `http://localhost:3000` を開くと、プロンプト入力、モデル選択、音声再生付きのデモ画面が表示されます。
 
-## Learn More
+## API
 
-To learn more about Next.js, take a look at the following resources:
+- `POST /api/gemini/music`
+- body: `{ prompt, model, durationSec, bpm, instrumental }`
+- response: `{ audioBase64, audioMimeType, notes, model, prompt }`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 実装メモ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `lyria-3-clip-preview` は 30 秒固定クリップ向けです。
+- `lyria-3-pro-preview` は数分単位の生成向けなので、待ち時間とコストが増えます。
+- デモでは `AUDIO` と `TEXT` の両方を要求し、音声と補足説明をまとめて表示します。
 
-## Deploy on Vercel
+## 参考
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- https://ai.google.dev/gemini-api/docs/music-generation
+- https://ai.google.dev/gemini-api/docs/quickstart
+- https://github.com/googleapis/js-genai
