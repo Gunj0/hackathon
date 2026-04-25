@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { RealtimeMusicPanel } from "./realtime-music-panel";
 
 const presets = [
   {
@@ -352,6 +353,8 @@ export function MusicDemo() {
             )}
           </div>
         </section>
+
+        <RealtimeMusicPanel />
       </div>
     </main>
   );
